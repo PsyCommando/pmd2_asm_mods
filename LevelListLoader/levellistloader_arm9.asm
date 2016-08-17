@@ -1,5 +1,14 @@
-;
+; For use with ARMIPS v0.7d
+; By: psycommando@gmail.com
+; 2016/08/16
 ; For Explorers of Sky North American ONLY!
+; ------------------------------------------------------------------------------
+; Copyright © 2016 Guillaume Lavoie-Drapeau <psycommando@gmail.com>
+; This work is free. You can redistribute it and/or modify it under the
+; terms of the Do What The Fuck You Want To Public License, Version 2,
+; as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
+; ------------------------------------------------------------------------------
+
 .nds
 .arm
 
@@ -21,7 +30,7 @@
             dcd 0
         ;.definelabel LevelListFPath, 0x020A46F8
         LevelListFPath:
-            .ascii "rom0:BALANCE/level_list.bin"
+            .ascii "rom0:BALANCE/level_list.bin"      ;This is the name of SIR0 file that'll contain our level table!
             dcb 0 ;Put ending 0
         .align  ;align the string on 4bytes
         LevellistError:
@@ -205,24 +214,7 @@
             ldrsh r0,[r0]
             pop   r1,r15
             .pool
-
-;-------------------------------------
-; Specific hooks
-;-------------------------------------
-; To reduce the risk of errors, we'll just work on our register in tailor made
-; hook functions, here
-
-;HOOK for 0x23125D4, 0x231110C, 0x2310108
-        HOOK_LVL_List_A:
-          push    r1,r2,r3,r4,r5,r14
-          mov     r0,r5             ;023125D4 E3A0000C mov     r0,0Ch
-          bl      LevelListAccessor ;023125D8 E1610085 smulbb  r1,r5,r0
-          mov     r4,r0             ;023125DC E59F3138 ldr     r3,=20A5488h
-          ldrsh   r0,[r4]           ;023125E0 E19300F1 ldrsh   r0,[r3,r1]
-          ;023125E4 E0834001 add     r4,r3,r1
-          pop    r1,r2,r3,r4,r5,r15
-          .pool
-      ;END
+        ;END
 
 ;Fill up the rest with junk so we know if something went wrong
         .fill (0x20A6910 - .), 0xFF ;Null out the rest of the table
