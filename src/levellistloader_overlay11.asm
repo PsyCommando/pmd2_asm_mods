@@ -7,11 +7,14 @@
 ; terms of the Do What The Fuck You Want To Public License, Version 2,
 ; as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
 ; ------------------------------------------------------------------------------
+.relativeinclude on
+.nds
+.arm
 
 ; ================================
 ; === Next do overlay_0011.bin ===
 ; ================================
-.open "overlay_0011.bin", 0x022DC240
+.open "../bin_src/overlay_0011.bin", "../bin_out/overlay/overlay_0011.bin", 0x022DC240
 ;-------------------------------------
 ; 022F134C
 ;-------------------------------------
