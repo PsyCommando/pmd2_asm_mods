@@ -25,18 +25,21 @@
 .definelabel MemZeroFill,     0x2003250     ;(r0 = PtrBuf, r1 = LengthBuffer)
 
 ; file streams
-.definelabel FStreamUnk1,     0x2008168     ;(r0 = PtrFStreamStruct, r1 = PtrFPath) Is usually done first, before any reading is done. Unsure what its for.
+.definelabel FStreamAlloc,    0x2008168     ;() Is usually done first, before any reading is done. Seems to instantiate the Filestream?
 .definelabel FStreamCtor,     0x2008204     ;(r0 = PtrFStreamStruct)  Zeroes the content of the struct
 .definelabel FStreamFOpen,    0x2008210     ;(r0 = PtrFStreamStruct, r1 = PtrFPath) Open the file for reading
-;.definelabel FStreamSeek,     0x20082A8     ;??
-.definelabel FStreamRead,     0x2008254      ;(r0 = PtrFStreamStruct, r1 = PtrOutBuffer, r2 = BegOffset, r3 = EndOffset ) Read the ammount of bytes specified to the buffer, for the FStream object
+.definelabel FStreamSeek,     0x20082A8     ;(r0 = PtrFStreamStruct, r1 = OffsetToSeekTo, r2 = unknown?(usually 0) )
+;2008244h
+.definelabel FStreamRead,     0x2008254     ;(r0 = PtrFStreamStruct, r1 = PtrOutBuffer, r2 = NbBytesToRead ) Read the ammount of bytes specified to the buffer, for the FStream object
+.definelabel FStreamClose,    0x20082C4     ;(r0 = PtrFStreamStruct)  Close the filestream
+.definelabel FStreamDealloc,  0x2008194     ;() ???
 
 ; Macros:
 .macro InitFileStream, filepathptr, targetstruct
   push  r0,r1
   ldr   r0,=filepathptr
   ldr   r1,=targetstruct
-  bl    FStreamUnk1
+  bl    FStreamAlloc
   ;;;;;;;;;;;;;;;;;;;;;;;TODO;;;;;;;;;;;;;;
 
   pop   r0,r1
