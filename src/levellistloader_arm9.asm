@@ -13,11 +13,7 @@
 .arm
 .include "cmn_eos.asm"
 
-.definelabel PPMD_GameVer,    0  ;Symbol for telling the library we're compiled for EoS North America "0"
-
-;.definelabel LoadFileFromRom, 0x2008C3C
-;.definelabel HandleSIR0,      0x201F4B4
-;.definelabel DebugPrint,      0x200C240
+.definelabel PPMD_GameVer,    0       ;Symbol for telling the library we're compiled for EoS North America "0"
 
 ;First do am9.bin
 .open "../bin_src/arm9.bin", "../bin_out/arm9.bin", 0x02000000
@@ -25,152 +21,11 @@
     .org 0x020A46EC ;write over the actual table
     ;.area 0x20A6910 - .;0x2224 ;We got at most 8,740 bytes to write stuff here, so there's plenty of room!
     .area 0x20A68BC - .
-;Check if we need to load the level list for this entry! (r0 = level id, r1=nothing) Return in r0, 1 if should load, 0 if not
-    CheckIfShouldGetLvlEntryFromFile:
-      ldr r1,=LevelEntryBuffer_lastlvlid
-      ldr r1,[r1]
-      cmp r0,r1
-      bne @@NeedToLoad
-      mov r0,0h
-      bx r14
-      @@NeedToLoad:
-      mov r0,1h
-      bx r14
-      .pool
-      .align 4
-    ;END
 
-;LoadLvlEntryFromFileOrCache (r0 = levelid) return in r0 the address of the entry in memory
-    LevelListAccessor:
-      push r1,r4,r14
-      mov r4,r0
-      bl CheckIfShouldGetLvlEntryFromFile
-
-      cmp r0,0h
-
-      ;If we don't need to load the file, load from cache and return!
-      ldreq r0,=LevelEntryBuffer_lastentry
-      beq @@End
-
-      ;Else if we need to load the file do it!
-      mov r0,r4                         ;Put level id back in r0!
-      bl GetLevelEntryDirectlyFromFile  ;The entry's address will be in r0 already
-
-      @@End:
-      pop r1,r4,r15
-      .pool
-      .align 4
-    ;END
-
-;Seek within level list instead of loading it! (r0 = level id!) Returns r0 with a pointer to the entry in the entry buffer.
-      GetLevelEntryDirectlyFromFile:
-        push r1,r2,r4,r5,r14
-        mov r4,r0         ;free up r0 to pass some parameters
-        ldr r0,=LevelEntryBuffer_lastlvlid
-        str r4,[r0]       ;Save the level id to the cache!
-        ;sub r13,r13,48h   ;we'll alloc the file stream on the stack
-        bl FStreamAlloc
-
-        ;Construct file stream
-        ;add r0,r13,0h
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        bl FStreamCtor
-
-        ;Open filestream
-        ;add r0,r13,0h          ;Set r0 to filestream object
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        ldr r1,=LevelListFPath ;level_list.bin
-        add r1,5h              ;Add 5 bytes to skip the "rom0:" part
-        bl FStreamFOpen
-
-        ;Seek to table ptr offset
-        ;add r0,r13,0h   ;Set r0 to filestream object
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        mov r1,4h
-        mov r2,0h
-        bl FStreamSeek
-
-        ;Read Pointer
-        ;add r0,r13,0h   ;Set r0 to filestream object
-        ;sub r13,r13,4h  ;Alloc 4 bytes on stack
-        ;add r1,r13,0h   ;Set allocated stack as dest buffer
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        ldr r1,=LevelList_PointerBuffer
-        mov r2,4h       ;Set nb bytes to read to 4
-        bl FStreamRead
-        ldr r1,=LevelList_PointerBuffer
-        ldr r1,[r1]     ;Load the 4bytes buffer into r1!
-        mov r5,r1       ;copy the value into r5 so we can use it later
-        ;add r13,r13,4h  ;Dealloc Alloc 4 bytes on stack
-
-        ;Seek to pointer
-        ;add r0,r13,0h   ;Set r0 to filestream object
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        ;r1 is already set!
-        mov r2,0h
-        bl FStreamSeek
-
-        ;Seek to the correct entry!
-        mov r0,12      ;An entry is 12 bytes
-        mla r1,r4,r0,r5 ;set position to seek to: (levelid * 12) + tablebeg
-        ;add r0,r13,0h   ;Set r0
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        mov r2,0h
-        bl FStreamSeek  ;Seeke to the entry
-
-        ;Read entry to buffer!
-        ;add r0,r13,0h   ;Set r0 to filestream object
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        ldr r1,=LevelEntryBuffer_lastentry ;Set target buffer
-        mov r2,12       ;Set nb bytes to read to 12
-        bl FStreamRead
-
-        ;Copy string!
-        ;add r0,r13,0h   ;Set r0 to filestream object
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        ldr r1,=LevelEntryBuffer_lastentry
-        ldr r1,[r1,8h] ;The string ptr is at 8 bytes in the entry
-        mov r2,0h
-        bl FStreamSeek  ;Seeke to the string
-        ;add r0,r13,0h   ;Set r0 to filestream object
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        ldr r1,=LevelEntryBuffer_lastname ;Set string buffer as target buffer
-        mov r2,10h      ;Set nb of bytes to read to 16!
-        bl FStreamRead  ;Read filestream
-
-        ;Replace string pointer!
-        ldr r0,=LevelEntryBuffer_lastname   ;Address of the string buffer
-        ldr r1,=LevelEntryBuffer_lastentry
-        str r0,[r1,8h] ;The string ptr is at 8 bytes in the entry
-
-        ;Close and Dealloc stream
-        ;add r0,r13,0h   ;Set r0 to filestream object
-        ldr r0,=LevelList_FileStream  ;Set r0 to filestream object
-        bl FStreamClose
-        bl FStreamDealloc
-
-        ;Return
-        ldr r0,=LevelEntryBuffer_lastentry
-        ;add r13, r13, 48h ;dealloc filestream
-        pop r1,r2,r4,r5,r15
-
-        .pool
-        LevelEntryBuffer_lastlvlid:
-          dcd 0 ;holds the last levelid so we can cache calls to this and not reload the file all the time
-          ;.align 4
-        LevelEntryBuffer_lastentry:
-          dcd 0,0,0 ;an entry is 12 bytes
-        .align 4
-        LevelEntryBuffer_lastname:
-          dcb 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ;reserve 16bytes string for writing the last string for the last entry here!
-          ;.align 4
-        LevelList_PointerBuffer:
-          dcd 0
-          ;.align 4
-        LevelList_FileStream: ;Put the file stream struct here!
-          defs 0x48,0
-        .align 4
-      ;END
+    ;Uncomment the desired implementation! Filestreams don't load the entire level list in memory, while the sir0 option loads the whole thing!
+    ; Filestreams are slower and takes little memory, while the other consumes more memory but is very quick!
+    ;.include "levellistloader_cachedfstream.asm"
+    .include "levellistloader_assir0.asm"
 
 ;********************************
 ; A few customized functions for making a more seamless hooking!
@@ -215,6 +70,56 @@
           pop r0,r1,r2,r3,r15
           .pool
           .align 4
+        ;END
+
+;********************************
+; Fontloader hook
+;********************************
+;A re-implementation of the font loader so the level table is loaded earlier.
+; The fonts are the first thing loaded in memory, so its probably going to be very
+; helpful to have this !!
+        ReplacedFontLoader:
+          push    r3,r14
+          bl      TryLoadLevelList  ;<=== We added our function to load the level list here
+
+          ;The original code is below:
+          sub     r13,r13,8h
+          ldr     r1,=209ABF0h
+          add     r0,r13,0h
+          mov     r2,1h
+          bl      LoadFileFromRom                ;LoadFileFromRom(R1=filepath)
+          ldr     r0,[r13]
+          ldr     r2,=22A7A54h
+          add     r3,r0,4h
+          str     r0,[r2,10h]
+          str     r3,[r2]
+          ldr     r1,=209AC04h
+          add     r0,r13,0h
+          mov     r2,1h
+          bl      LoadFileFromRom                ;LoadFileFromRom(R1=filepath)
+          ldr     r0,[r13]
+          ldr     r2,=22A7A54h
+          add     r3,r0,4h
+          str     r0,[r2,14h]
+          str     r3,[r2,4h]
+          ldr     r1,=209AC18h
+          add     r0,r13,0h
+          mov     r2,1h
+          bl      LoadFileFromRom                ;LoadFileFromRom(R1=filepath)
+          ldr     r0,[r13]
+          ldr     r1,=20AFD04h
+          mov     r2,0h
+          str     r0,[r1,0Ch]
+          str     r2,[r1,8h]
+          ldr     r0,=22A7A54h
+          mov     r2,0Bh
+          str     r2,[r0,8h]
+          str     r2,[r0,0Ch]
+          mov     r0,1h
+          strb    r0,[r1]
+          add     r13,r13,8h
+          pop     r3,r15
+        .pool
         ;END
 
 
@@ -274,14 +179,14 @@
 ;-------------------------------------
 ; FontLoader Hook (For loading as SIR0 only)
 ;-------------------------------------
-    ;.org 0x2025AD8
-    ;.area (0x2025B7C - 0x2025AD8)
-      ;push r14
-      ;bl ReplacedFontLoader
-      ;pop r15
-      ;.pool
-      ;.fill (0x2025B7C - .),0
-    ;.endarea
+    .org 0x2025AD8
+    .area (0x2025B7C - 0x2025AD8)
+      push r14
+      bl ReplacedFontLoader
+      pop r15
+      .pool
+      .fill (0x2025B7C - .),0
+    .endarea
     ;END
 
 
