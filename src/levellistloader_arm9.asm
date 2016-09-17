@@ -196,6 +196,26 @@
             .align 4
         ;END
 
+;Helper for getting the first hword and return it into r0.
+        LevelListSecondHWORDGet:
+            push  r14
+            bl    LevelListAccessor
+            ldrsh r0,[r0,2h]
+            pop   r15
+            .pool
+            .align 4
+        ;END
+
+;Custom Hook for 022F1F68
+        LevelListCustomHook022F1F68:
+          push r0,r1,r2,r3,r14
+          mov r0,r4
+          bl  LevelListAccessor
+          mov r4,r0
+          pop r0,r1,r2,r3,r15
+          .pool
+          .align 4
+        ;END
 
 
         LevelListFPath:
