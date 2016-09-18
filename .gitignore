@@ -1,7 +1,3 @@
-build/levellist_symfile.sym
-build/levellist_output.txt
-bin_src/arm9.bin
-bin_out/overlay/overlay_0011.bin
-bin_out/arm9.bin
-bin_src/overlay_0011.bin
-build/symfile.sym
+bin_src/*
+bin_out/*
+build/*
