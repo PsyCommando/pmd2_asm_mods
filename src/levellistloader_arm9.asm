@@ -8,15 +8,15 @@
 ; terms of the Do What The Fuck You Want To Public License, Version 2,
 ; as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
 ; ------------------------------------------------------------------------------
+;Meant to be included inside the arm9.bin file!
 .relativeinclude on
 .nds
 .arm
-.include "cmn_eos.asm"
 
-.definelabel PPMD_GameVer,    0       ;Symbol for telling the library we're compiled for EoS North America "0"
+;.definelabel PPMD_GameVer,    0       ;Symbol for telling the library we're compiled for EoS North America "0"
 
 ;First do am9.bin
-.open "../bin_src/arm9.bin", "../bin_out/arm9.bin", 0x02000000
+;.open "../bin_src/arm9.bin", "../bin_out/arm9.bin", 0x02000000
     ;Implement our own file loading function to load the list as a sir0!
     .org 0x020A46EC ;write over the actual table
     ;.area 0x20A6910 - .;0x2224 ;We got at most 8,740 bytes to write stuff here, so there's plenty of room!
@@ -81,6 +81,7 @@
         ReplacedFontLoader:
           push    r3,r14
           bl      TryLoadLevelList  ;<=== We added our function to load the level list here
+          bl      TryLoadActorList 
 
           ;The original code is below:
           sub     r13,r13,8h
@@ -190,6 +191,6 @@
     ;END
 
 
-.close ;Close arm9.bin
+;.close ;Close arm9.bin
 
-.include "levellistloader_overlay11.asm"
+;.include "levellistloader_overlay11.asm"

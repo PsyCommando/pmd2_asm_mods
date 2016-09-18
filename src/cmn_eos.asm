@@ -9,6 +9,8 @@
 ; terms of the Do What The Fuck You Want To Public License, Version 2,
 ; as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
 ; ------------------------------------------------------------------------------
+.ifndef CMN_EOS_ARM
+.definelabel CMN_EOS_ARM, 1
 
 .relativeinclude on
 .nds
@@ -40,3 +42,5 @@
   .endif
 
 .endif
+
+.endif ;CMN_EOS_ARM

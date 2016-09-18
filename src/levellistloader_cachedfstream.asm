@@ -8,6 +8,8 @@
 ; terms of the Do What The Fuck You Want To Public License, Version 2,
 ; as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
 ; ------------------------------------------------------------------------------
+; This loads the level_list.bin file one entry at a time when needed using file streams.
+; 
 ;.relativeinclude on
 .nds
 .arm
