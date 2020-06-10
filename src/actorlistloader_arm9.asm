@@ -16,8 +16,8 @@
 .definelabel ActorEntryLen, 12
 
 ;Beginning of the npc table
-.org 0x020A6910
-.area 0x20A9208 - .
+.org ActNpcTable
+.area 0x28F8, 255 ; We null out the rest of the table, so we know something went wrong
 
 ;Uncomment desired method of access to the file's content
   ;.include "actor_accessor_fstream.asm" ;;;<============================== Because of the way actor function access the actor data, filestreams are not available!!!!
@@ -73,8 +73,6 @@
     .ascii "rom0:BALANCE/actor_list.bin"
     dcb 0 ;Ending 0!
   .align 4
-;Fill up the rest with junk so we know if something went wrong
-        .fill  (0x20A9208 - .), 255 ;Null out the rest of the table
 .endarea
 
 
@@ -83,8 +81,8 @@
 ;-------------------------------------
 ; 0x20240B0 Hook
 ;-------------------------------------
-.org 0x20240B0
-.area (0x2024114 - .)
+.org ActFn20240B0
+.area 0x64, 0
   push    r4-r8,r14
   mov     r8,r0
   mov     r7,r1
@@ -122,15 +120,14 @@
   mov     r0,0h
   pop     r4-r8,r15
   .pool
-  .fill (0x2024114 - .), 0
 .endarea
 
 
 ;-------------------------------------
 ; 0x2024114 Hook
 ;-------------------------------------
-.org 0x2024114
-.area (0x2024178 - .)
+.org ActFn2024114
+.area 0x64, 0
   push    r4-r8,r14
   mov     r8,r0
   mov     r7,r1
@@ -169,14 +166,13 @@
   ;02024170 020A7FF0
   ;02024174 00000182
   .pool
-  .fill (0x2024178 - .), 0
 .endarea
 
 ;-------------------------------------
 ; 0x2024178 Hook
 ;-------------------------------------
-.org 0x2024184
-.area (0x20241DC - .)
+.org ActFn2024184
+.area 0x58, 0
     push    r4-r8,r14
     mov     r8,r0
     mov     r7,r1
@@ -214,29 +210,27 @@
     ;020241D4 020A7FF0
     ;020241D8 00000182
     .pool
-    .fill (0x20241DC - .), 0
 .endarea
 
 ;-------------------------------------
 ; 0x2065050 Hook
 ;-------------------------------------
-.org 0x20650C0
+.org ActFn20650C0
 .area 16
     mov     r0,r2           ;020650C0 E3A0000C mov     r0,0Ch
     bl      ActorAccessor   ;020650C4 E1610082 smulbb  r1,r2,r0
     ldrsh   r0,[r0]         ;020650C8 E59F03C8 ldr     r0,=20A7FF0h
     nop                     ;020650CC E19000F1 ldrsh   r0,[r0,r1]
 .endarea
-.org 0x2065498 ;Can replace address to actor table in datapool
-.area 4
+.org ActFn20650C0 + 0x3D8 ;Can replace address to actor table in datapool
+.area 4, 0
   .pool
-  .fill (0x2065498 + 4) - .,0
 .endarea
 
 ;-------------------------------------
 ; 0x206549C Hook
 ;-------------------------------------
-.org 0x20654D0
+.org ActFn20654D0
 .area 20
   push r14                            ;020654D0 E3A0100C mov     r1,0Ch
   mov r1,r14                          ;020654D4 E163018E smulbb  r3,r14,r1
@@ -244,17 +238,16 @@
   pop r14                             ;020654DC E19C20F3 ldrsh   r2,[r12,r3]
   nop                                 ;020654E0 E08C3003 add     r3,r12,r3
 .endarea
-.org 0x2065964  ;Can replace address to actor table in datapool
-.area 4
+.org ActFn20654D0 + 0x494  ;Can replace address to actor table in datapool
+.area 4, 0
   .pool
-  .fill (0x2065964 + 4) - .,0
 .endarea
 
 ;-------------------------------------
 ; 0x2065B14 Hook
 ;-------------------------------------
-.org 0x2065B14
-.area (0x2065B3C - .)
+.org ActFn2065B14
+.area 0x28, 0
 push r14
   mvn     r1,0h
   cmp     r0,r1
@@ -266,5 +259,4 @@ push r14
   ldrh    r0,[r0,8h]
   pop     r15             ;bx      r14
   .pool
-  .fill (0x2065B3C - .), 0
 .endarea

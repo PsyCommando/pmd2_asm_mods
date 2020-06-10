@@ -14,7 +14,7 @@
 ;-------------------------------------
 ; Hook 022F134C
 ;-------------------------------------
-  .org 0x22DE56C
+  .org LvlFn22DE56C
   .area 24  ;We have 24 bytes here
     ldrsh   r3,[r0,8h]
     mov     r0,r3
@@ -27,7 +27,7 @@
 ;-------------------------------------
 ; Hook 022F134C
 ;-------------------------------------
-  .org 0x22F134C
+  .org LvlFn22F134C
   .area 0x14  ;We have 20 bytes here
     ;Prepare the parameter for the accessor
     mov     r0,r5               ;022F134C E3A0000C mov     r0,0Ch
@@ -36,7 +36,7 @@
     ldrsh   r0,[r4]             ;022F1358 E19400F3 ldrsh   r0,[r4,r3]
     nop                         ;022F135C E0844003 add     r4,r4,r3
   .endarea
-  .org 0x22F1540         ;We need to modify the address here, to use it for our bl above!
+  .org LvlFn22F134C + 0x1F4         ;We need to modify the address here, to use it for our bl above!
   .area 4
     .pool
   .endarea
@@ -44,7 +44,7 @@
 ;-------------------------------------
 ; Hook 022F1600
 ;-------------------------------------
-  .org 0x22F1600
+  .org LvlFn22F1600
   .area 0x14
     ;Prepare the parameter for the accessor
     mov     r0,r8                 ;022F1600 E3A0000C mov     r0,0Ch
@@ -53,7 +53,7 @@
     ldrsh   r0,[r4]               ;022F160C E19200F1 ldrsh   r0,[r2,r1]
     nop                           ;022F1610 E0824001 add     r4,r2,r1
   .endarea
-  .org 0x22F16FC
+  .org LvlFn22F1600 + 0xFC
   .area 4
     .pool
   .endarea
@@ -61,7 +61,7 @@
   ;-------------------------------------
   ; Hook 022F1758
   ;-------------------------------------
-  .org 0x22F1758
+  .org LvlFn22F1758
   .area 24
     mov     r0,r4               ;022F1758 E59F1034 ldr     r1,=20A5488h   //<-change       //Level list beg
     ldr     r3,[r2,4h]          ;!! Don't touch !!
@@ -70,7 +70,7 @@
     ldrsh   r1,[r0,4h]          ;022F1768 E1001084 smlabb  r0,r4,r0,r1
     nop                         ;022F176C E1D010F4 ldrsh   r1,[r0,4h]
   .endarea
-  .org 0x22F1794
+  .org LvlFn22F1758 + 0x3C
   .area 4
     .pool
   .endarea
@@ -78,8 +78,8 @@
   ;-------------------------------------
   ; Hook 0x22F17B4 - This one caused misalignment in the stack!!
   ;-------------------------------------
-  .org 0x22F17B4
-  .area (0x22F17E4 - 0x22F17B4)
+  .org LvlFn22F17B4
+  .area 0x30
     push r14                  ;022F17B4 E59F0024 ldr     r0,=2324CC0h
     ldr     r0,=2324CC0h       ;022F17B8 E5900004 ldr     r0,[r0,4h]
     ldr     r0,[r0,4h]         ;022F17BC E3500000 cmp     r0,0h
@@ -99,7 +99,7 @@
   ;-------------------------------------
   ; Hook 022F1F68
   ;-------------------------------------
-  .org 0x22F1F68
+  .org LvlFn22F1F68
   .area 20
     nop ;mov     r0,r4             ;022F1F68 E3A0300C mov     r3,0Ch
     mov     r1,r7             ;!! Don't Touch !!
@@ -107,11 +107,11 @@
     bl      LevelListCustomHook022F1F68 ;022F1F74 E1640384 smulbb  r4,r4,r3 ;;<== Custom hook for this one since we don't have much space, and a lot of registers are in use!
     nop ;022F1F78 E59F50C8 ldr     r5,=20A5488h ;;;Put the result into r4 since r0 gets overwritten several times after, not r4 and r5
   .endarea
-  .org 0x22F1FD8
+  .org LvlFn22F1F68 + 0x70
   .area 4
     ldrsh   r0,[r4]           ;022F1FD8 E19500F4 ldrsh   r0,[r5,r4]
   .endarea
-  .org 0x22F2048
+  .org LvlFn22F1F68 + 0xE0
   .area 4
     .pool
   .endarea
@@ -119,7 +119,7 @@
   ;-------------------------------------
   ; Hook 022FF9FC
   ;-------------------------------------
-  .org 0x22FF9FC
+  .org LvlFn22FF9FC
   .area 24
     push r14
     mov     r0,r1                 ;022FF9FC E59F200C ldr     r2,=20A5488h
@@ -134,7 +134,7 @@
   ;-------------------------------------
   ; Hook 0x2310108
   ;-------------------------------------
-  .org 0x2310108
+  .org LvlFn2310108
   .area 20
     mov     r0,r5             ;02310108 E3A0000C mov     r0,0Ch
     bl      LevelListAccessor ;0231010C E1610085 smulbb  r1,r5,r0
@@ -142,7 +142,7 @@
     ldrsh   r0,[r4]           ;02310114 E19300F1 ldrsh   r0,[r3,r1]
     nop                       ;02310118 E0834001 add     r4,r3,r1
   .endarea
-  .org 0x2310328
+  .org LvlFn2310108 + 0x220
   .area 4
     .pool
   .endarea
@@ -150,32 +150,32 @@
   ;-------------------------------------
   ; Hook 0x2310E1C
   ;-------------------------------------
-  .org 0x2310E1C
+  .org LvlFn2310E1C
   .area 4
     nop     ;02310E1C E3A0000C mov     r0,0Ch        //<-change
   .endarea
   ;02310E20 E2811902 add     r1,r1,8000h
   ;02310E24 E5861000 str     r1,[r6]
   ;02310E28 E5962004 ldr     r2,[r6,4h]
-  .org 0x2310E2C
+  .org LvlFn2310E1C + 0x10
   .area 4
     nop     ;02310E2C E1610084 smulbb  r1,r4,r0      //<-change
   .endarea
   ;02310E30 E2820A06 add     r0,r2,6000h
   ;02310E34 E5860004 str     r0,[r6,4h]
   ;02310E38 E5952000 ldr     r2,[r5]
-  .org 0x2310E3C
+  .org LvlFn2310E1C + 0x20
   .area 4
     mov     r0,r4  ;02310E3C E59F0080 ldr     r0,=20A5488h  //<-change
   .endarea
   ;02310E40 E2422902 sub     r2,r2,8000h
   ;02310E44 E5852000 str     r2,[r5]
   ;02310E48 E5952004 ldr     r2,[r5,4h]
-  .org 0x2310E4C
+  .org LvlFn2310E1C + 0x30
   .area 4
     bl    LevelListFirstHWORDGet ;02310E4C E19000F1 ldrsh   r0,[r0,r1]    //<-change
   .endarea
-  .org 0x2310EC4
+  .org LvlFn2310E1C + 0xA8
   .area 4
     .pool
   .endarea
@@ -183,7 +183,7 @@
   ;-------------------------------------
   ; Hook 0x231110C
   ;-------------------------------------
-  .org 0x231110C
+  .org LvlFn231110C
   .area 20
     mov     r0,r5             ;0231110C E3A0000C mov     r0,0Ch
     bl      LevelListAccessor ;02311110 E1610085 smulbb  r1,r5,r0
@@ -191,7 +191,7 @@
     ldrsh   r0,[r4]           ;02311118 E19300F1 ldrsh   r0,[r3,r1]
     nop                       ;0231111C E0834001 add     r4,r3,r1
   .endarea
-  .org 0x02311278
+  .org LvlFn231110C + 0x16C
   .area 4
     .pool
   .endarea
@@ -199,7 +199,7 @@
   ;-------------------------------------
   ; Hook 0x23125D4
   ;-------------------------------------
-  .org 0x23125D4
+  .org LvlFn23125D4
   .area 20
     mov     r0,r5             ;023125D4 E3A0000C mov     r0,0Ch
     bl      LevelListAccessor ;023125D8 E1610085 smulbb  r1,r5,r0
@@ -207,7 +207,7 @@
     ldrsh   r0,[r4]           ;023125E0 E19300F1 ldrsh   r0,[r3,r1]
     nop                       ;023125E4 E0834001 add     r4,r3,r1
   .endarea
-  .org 0x0231271C
+  .org LvlFn23125D4 + 0x148
   .area 4
     .pool
   .endarea

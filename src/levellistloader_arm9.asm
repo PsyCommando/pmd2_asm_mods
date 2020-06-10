@@ -18,9 +18,9 @@
 ;First do am9.bin
 ;.open "../bin_src/arm9.bin", "../bin_out/arm9.bin", 0x02000000
     ;Implement our own file loading function to load the list as a sir0!
-    .org 0x020A46EC ;write over the actual table
+    .org LvlListTable ;write over the actual table
     ;.area 0x20A6910 - .;0x2224 ;We got at most 8,740 bytes to write stuff here, so there's plenty of room!
-    .area 0x20A68BC - .
+    .area 0x21D0, 255 ; We null out the rest of the table, so we know something went wrong
 
     ;Uncomment the desired implementation! Filestreams don't load the entire level list in memory, while the sir0 option loads the whole thing!
     ; Filestreams are slower and takes little memory, while the other consumes more memory but is very quick!
@@ -128,8 +128,6 @@
             .ascii "rom0:BALANCE/level_list.bin"      ;This is the name of SIR0 file that'll contain our level table!
             dcb 0 ;Put ending 0
         .align 4 ;align the string on 4bytes
-;Fill up the rest with junk so we know if something went wrong
-        .fill  (0x20A68BC - .), 255 ;Null out the rest of the table
     .endarea
 
 ;===============================================================================
@@ -139,8 +137,8 @@
 ;-------------------------------------
 ; Level Getter2 Hook
 ;-------------------------------------
-    .org 0x2065014
-    .area 0x2065050 - 0x2065014
+    .org LvlFn2065014
+    .area 0x3C
       push r1,r14
       mvn     r1,0h
       cmp     r0,r1
@@ -166,7 +164,7 @@
 ;-------------------------------------
 ; Level String Getter Hook
 ;-------------------------------------
-    .org 0x02064FFC
+    .org LvlFn2064FFC
     .area 0x18 ; we got 24 bytes max here
         push r14
         ;Call our modified routine
@@ -180,13 +178,12 @@
 ;-------------------------------------
 ; FontLoader Hook (For loading as SIR0 only)
 ;-------------------------------------
-    .org 0x2025AD8
-    .area (0x2025B7C - 0x2025AD8)
+    .org LvlFn2025AD8
+    .area 0xA4, 0
       push r14
       bl ReplacedFontLoader
       pop r15
       .pool
-      .fill (0x2025B7C - .),0
     .endarea
     ;END
 

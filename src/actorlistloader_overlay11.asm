@@ -16,7 +16,7 @@
 ;-------------------------------------
 ; 0x22F7E78 Hook
 ;-------------------------------------
-.org 0x22F7F04
+.org ActFn22F7F04
 .area 28
   ;ldr     r7,=20A7FF0h
   ;mov     r12,0Ch
@@ -29,27 +29,25 @@
   mov     r4,r0
   mov     r0,1h               ;Don't Change this!
 .endarea
-.org 0x22F83E0      ;Can replace address to actor table in datapool
-.area 4
+.org ActFn22F7F04 + 0x4DC      ;Can replace address to actor table in datapool
+.area 4, 0
   .pool
-    .fill (0x22F83E0 + 4) - .,0
 .endarea
 
 ;-------------------------------------
 ; 0x22F8C18 Hook
 ;-------------------------------------
-.org 0x22F8C68
+.org Act22F8CD0-0x68
 .area 4
   nop       ;022F8C68 E59FB1F4 ldr     r11,=20A7FF0h
 .endarea
-.org 0x22F8CD0
+.org Act22F8CD0
 .area 12
   mov     r0,r1           ;022F8CD0 E3A0000C mov     r0,0Ch
   bl      ActorAccessor   ;022F8CD4 E1600081 smulbb  r0,r1,r0
   ldrsh   r0,[r0]         ;022F8CD8 E19B00F0 ldrsh   r0,[r11,r0]
 .endarea
-.org 0x22F8E64    ;Can replace address to actor table in datapool
-.area 4
+.org Act22F8CD0 + 0x194    ;Can replace address to actor table in datapool
+.area 4, 0
   .pool
-  .fill (0x22F8E64 + 4) - .,0
 .endarea
