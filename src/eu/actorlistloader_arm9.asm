@@ -1,7 +1,7 @@
 ; For use with ARMIPS v0.7d
 ; By: psycommando@gmail.com
-; 2016/09/17
-; For Explorers of Sky North American ONLY!
+; 2016/09/17 - Updated 2020/11/17
+; For Explorers of Sky Europe ONLY!
 ; ------------------------------------------------------------------------------
 ; Copyright © 2016 Guillaume Lavoie-Drapeau <psycommando@gmail.com>
 ; This work is free. You can redistribute it and/or modify it under the
@@ -13,15 +13,16 @@
 .nds
 .arm
 
+
 .definelabel ActorEntryLen, 12
 
 ;Beginning of the npc table
-.org 0x020A6910
-.area 0x20A9208 - .
+.org 0x020A71B0 ;OK
+.area 0x20A9AA8 - . ;OK
 
 ;Uncomment desired method of access to the file's content
-  ;.include "actor_accessor_fstream.asm" ;;;<============================== Because of the way actor function access the actor data, filestreams are not available!!!!
-  .include "actor_accessor_sir0.asm"
+  ;.include "../actor_accessor_fstream.asm" ;;;<============================== Because of the way actor function access the actor data, filestreams are not available!!!!
+  .include "../actor_accessor_sir0.asm"
 
 ;Accessor, returns address entry specified (r0 = npc id) returns in r0 the address of the entry
   ActorAccessor:
@@ -36,8 +37,8 @@
     .align 4
 ;END ActorAccessor
 
-;Custom hook for function 0206B24
-  ActorListCustomHook0206B24:
+;Custom hook for function ???
+  ActorListCustomHookUnknown:
     push r0,r14
       bl      GetActorListAddress
       mov     r5,r0
@@ -52,8 +53,8 @@
   .align 4
 ;END ActorAccessor
 
-;Custom hook for function 0206549C (r1=actorid,) returns in r2 the first short, and in r3 the address of the entry!
-  ActorListCustomHook0206549C:
+;Custom hook for function 02065818 (r1=actorid,) returns in r2 the first short, and in r3 the address of the entry!
+  ActorListCustomHook02065818:
     push r0,r12,r14
       mov     r0,r1                 ;Get the actor id into r0
       mov     r12,r0                ;Save entry id in r12!
@@ -74,7 +75,7 @@
     dcb 0 ;Ending 0!
   .align 4
 ;Fill up the rest with junk so we know if something went wrong
-        .fill  (0x20A9208 - .), 255 ;Null out the rest of the table
+        .fill  (0x20A9AA8 - .), 255 ;Null out the rest of the table
 .endarea
 
 
@@ -83,8 +84,8 @@
 ;-------------------------------------
 ; 0x20240B0 Hook
 ;-------------------------------------
-.org 0x20240B0
-.area (0x2024114 - .)
+.org 0x2024310
+.area (0x2024374 - .) ;OK
   push    r4-r8,r14
   mov     r8,r0
   mov     r7,r1
@@ -95,23 +96,23 @@
   ;Get the nb of actor here in the 2 instructions we've freed!
   ;bl GetNbActors
   ;mov r4,r0
-  bl ActorListCustomHook0206B24
+  bl ActorListCustomHookUnknown
 
   b       @@LBL2
   @@LOOP_BEG1:
   ldr     r1,[r5,4h] ;<================ ACCESSOR HERE
 
   ;Get the address of the actor entry, place it in r5.
-  ;bl ActorListCustomHook0206B24 ;This will set the register up correctly!
+  ;bl ActorListCustomHookUnknown ;This will set the register up correctly!
 
   mov     r0,r7
-  bl      202364Ch          //0202364C Compare NPC names!
+  bl      2023870h          //0202364C Compare NPC names!; OK
   cmp     r0,0h
   beq     @@LBL1
   mov     r1,r6,lsl 10h
   mov     r0,r8
   mov     r1,r1,asr 10h
-  bl      2023D64h
+  bl      2023FC4h ;OK
   pop     r4-r8,r15
   @@LBL1:
   add     r6,r6,1h
@@ -122,15 +123,15 @@
   mov     r0,0h
   pop     r4-r8,r15
   .pool
-  .fill (0x2024114 - .), 0
+  .fill (0x2024374 - .), 0 ;OK
 .endarea
 
 
 ;-------------------------------------
-; 0x2024114 Hook
+; 0x2024374 Hook
 ;-------------------------------------
-.org 0x2024114
-.area (0x2024178 - .)
+.org 0x2024374 ;OK
+.area (0x20243D8 - .) ;OK
   push    r4-r8,r14
   mov     r8,r0
   mov     r7,r1
@@ -141,22 +142,22 @@
   ;Get the nb of actor here in the 2 instructions we've freed!
   ;bl GetNbActors
   ;mov r4,r0
-  bl ActorListCustomHook0206B24
+  bl ActorListCustomHookUnknown
 
   b       @@LBL1
   @@LOOP_BEG1:
   ldr     r1,[r5,4h]
   ;Get the address of the actor entry, place it in r5.
-  ;bl ActorListCustomHook0206B24 ;This will set the register up correctly!
+  ;bl ActorListCustomHookUnknown ;This will set the register up correctly!
 
   mov     r0,r7
-  bl      202364Ch
+  bl      2023870h ;OK
   cmp     r0,0h
   beq     @@LBL2
   mov     r1,r6,lsl 10h
   mov     r0,r8
   mov     r1,r1,asr 10h
-  bl      2023DC0h
+  bl      2024020h ;OK
   pop     r4-r8,r15
   @@LBL2:
   add     r6,r6,1h
@@ -169,14 +170,14 @@
   ;02024170 020A7FF0
   ;02024174 00000182
   .pool
-  .fill (0x2024178 - .), 0
+  .fill (0x20243D8 - .), 0 ;OK
 .endarea
 
 ;-------------------------------------
-; 0x2024178 Hook
+; 0x20243D8 Hook
 ;-------------------------------------
-.org 0x2024184
-.area (0x20241DC - .)
+.org 0x20243E4 ;OK
+.area (0x202443C - .) ;OK
     push    r4-r8,r14
     mov     r8,r0
     mov     r7,r1
@@ -187,21 +188,21 @@
     ;Get the nb of actor here in the 2 instructions we've freed!
     ;bl GetNbActors
     ;mov r4,r0
-    bl ActorListCustomHook0206B24
+    bl ActorListCustomHookUnknown
 
     b       @@LBL1
     @@LOOP_BEG1:
     ldr     r1,[r5,4h]
   ;Get the address of the actor entry, place it in r5.
-    ;bl ActorListCustomHook0206B24 ;This will set the register up correctly!
+    ;bl ActorListCustomHookUnknown ;This will set the register up correctly!
     mov     r0,r7
-    bl      202364Ch
+    bl      2023FC4h ;OK
     cmp     r0,0h
     beq     @@LBL2
     mov     r1,r6,lsl 10h
     mov     r0,r8
     mov     r1,r1,asr 10h
-    bl      2023FB4h
+    bl      2024214h ;OK
     pop     r4-r8,r15
     @@LBL2:
     add     r6,r6,1h
@@ -214,47 +215,47 @@
     ;020241D4 020A7FF0
     ;020241D8 00000182
     .pool
-    .fill (0x20241DC - .), 0
+    .fill (0x202443C - .), 0 ;OK
 .endarea
 
 ;-------------------------------------
-; 0x2065050 Hook
+; 0x206543C Hook
 ;-------------------------------------
-.org 0x20650C0
+.org 0x206543C ;OK
 .area 16
     mov     r0,r2           ;020650C0 E3A0000C mov     r0,0Ch
     bl      ActorAccessor   ;020650C4 E1610082 smulbb  r1,r2,r0
     ldrsh   r0,[r0]         ;020650C8 E59F03C8 ldr     r0,=20A7FF0h
     nop                     ;020650CC E19000F1 ldrsh   r0,[r0,r1]
 .endarea
-.org 0x2065498 ;Can replace address to actor table in datapool
+.org 0x2065814 ;Can replace address to actor table in datapool ;OK
 .area 4
   .pool
-  .fill (0x2065498 + 4) - .,0
+  .fill (0x2065814 + 4) - .,0 ;OK
 .endarea
 
 ;-------------------------------------
-; 0x206549C Hook
+; 0x2065818 Hook
 ;-------------------------------------
-.org 0x20654D0
+.org 0x206584C ;OK
 .area 20
   push r14                            ;020654D0 E3A0100C mov     r1,0Ch
   mov r1,r14                          ;020654D4 E163018E smulbb  r3,r14,r1
-  bl  ActorListCustomHook0206549C     ;020654D8 E59FC484 ldr     r12,=20A7FF0h
+  bl  ActorListCustomHook02065818     ;020654D8 E59FC484 ldr     r12,=20A7FF0h
   pop r14                             ;020654DC E19C20F3 ldrsh   r2,[r12,r3]
   nop                                 ;020654E0 E08C3003 add     r3,r12,r3
 .endarea
-.org 0x2065964  ;Can replace address to actor table in datapool
+.org 0x2065CE0  ;Can replace address to actor table in datapool
 .area 4
   .pool
-  .fill (0x2065964 + 4) - .,0
+  .fill (0x2065CE0 + 4) - .,0 ;OK
 .endarea
 
 ;-------------------------------------
-; 0x2065B14 Hook
+; 0x2065E90 Hook
 ;-------------------------------------
-.org 0x2065B14
-.area (0x2065B3C - .)
+.org 0x2065E90
+.area (0x2065EB8 - .)
 push r14
   mvn     r1,0h
   cmp     r0,r1
@@ -266,5 +267,5 @@ push r14
   ldrh    r0,[r0,8h]
   pop     r15             ;bx      r14
   .pool
-  .fill (0x2065B3C - .), 0
+  .fill (0x2065EB8 - .), 0
 .endarea
