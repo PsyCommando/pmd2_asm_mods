@@ -11,12 +11,6 @@
 .nds
 .arm
 
-; ========================
-; === overlay_0011.bin ===
-; ========================
-; Hook all references to the level list within the overlay11 file!
-.open "../bin_src/overlay_0011.bin", "../bin_out/overlay/overlay_0011.bin", 0x022DC240
-
 ;-------------------------------------
 ; Hook 022F134C
 ;-------------------------------------
@@ -45,7 +39,6 @@
   .org 0x22F1540         ;We need to modify the address here, to use it for our bl above!
   .area 4
     .pool
-    ;dcd LevelListAccessor ;Overwrite the address of the table with the one of the hacked accessor function
   .endarea
 
 ;-------------------------------------
@@ -111,7 +104,7 @@
     nop ;mov     r0,r4             ;022F1F68 E3A0300C mov     r3,0Ch
     mov     r1,r7             ;!! Don't Touch !!
     mov     r2,r6             ;!! Don't Touch !!
-    bl      LevelListCustomHook022F1F68 ;022F1F74 E1640384 smulbb  r4,r4,r3
+    bl      LevelListCustomHook022F1F68 ;022F1F74 E1640384 smulbb  r4,r4,r3 ;;<== Custom hook for this one since we don't have much space, and a lot of registers are in use!
     nop ;022F1F78 E59F50C8 ldr     r5,=20A5488h ;;;Put the result into r4 since r0 gets overwritten several times after, not r4 and r5
   .endarea
   .org 0x22F1FD8
@@ -218,14 +211,3 @@
   .area 4
     .pool
   .endarea
-
-.close ;Close overlay_0011.bin
-
-
-;TODO OVERLAY_0010??
-; ================================
-; === Next do overlay_0010.bin ===
-; ================================
-;.open "overlay_0010.bin", 0x022BCA80
-
-;.close

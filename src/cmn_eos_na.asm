@@ -9,8 +9,11 @@
 ; as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
 ; ------------------------------------------------------------------------------
 
+
 ; Overlays load offsets
+.definelabel Overlay_0010_offset, 0x022BCA80
 .definelabel Overlay_0011_offset, 0x022DC240
+.definelabel Overlay_0013_offset, 0x0238A140
 
 ; Known function offsets from the game's binaries:
 .definelabel LoadFileFromRom, 0x2008C3C
@@ -33,14 +36,3 @@
 .definelabel FStreamRead,     0x2008254     ;(r0 = PtrFStreamStruct, r1 = PtrOutBuffer, r2 = NbBytesToRead ) Read the ammount of bytes specified to the buffer, for the FStream object
 .definelabel FStreamClose,    0x20082C4     ;(r0 = PtrFStreamStruct)  Close the filestream
 .definelabel FStreamDealloc,  0x2008194     ;() ???
-
-; Macros:
-.macro InitFileStream, filepathptr, targetstruct
-  push  r0,r1
-  ldr   r0,=filepathptr
-  ldr   r1,=targetstruct
-  bl    FStreamAlloc
-  ;;;;;;;;;;;;;;;;;;;;;;;TODO;;;;;;;;;;;;;;
-
-  pop   r0,r1
-.endmacro
