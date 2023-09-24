@@ -13,7 +13,7 @@
 ; Overlays load offsets
 .definelabel Overlay_0010_offset, 0x022BD3C0 ;OK
 .definelabel Overlay_0011_offset, 0x022DCB80 ;OK
-.definelabel Overlay_0013_offset, 0x0238A880 ;OK
+.definelabel Overlay_0013_offset, 0x0238AC80 ;OK
 
 ; Known function offsets from the game's binaries:
 .definelabel LoadFileFromRom, 0x2008C3C ;OK
